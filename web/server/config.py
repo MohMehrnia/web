@@ -2,7 +2,7 @@ from starlette.config import Config
 
 config: Config = Config(".env")
 
-HOST_ADDRESS: str = config("HOST_ADDRESS", default="https://freedium.cfd")
+HOST_ADDRESS: str = config("HOST_ADDRESS", default="https://freedium-mirror.cfd")
 
 MEDIUM_AUTH_COOKIES: str | None = config("MEDIUM_AUTH_COOKIES", default=None)
 
