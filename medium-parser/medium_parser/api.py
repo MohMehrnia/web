@@ -9,17 +9,19 @@ from medium_parser.utils import generate_random_sha256_hash
 
 
 class MediumApi:
-    __slots__ = ("auth_cookies", "proxy_list", "timeout")
+    __slots__ = ("auth_cookies", "proxy_list", "timeout", "impersonate")
 
     def __init__(
         self,
         auth_cookies: Optional[str] = None,
         proxy_list: Optional[List[str]] = None,
         timeout: int = 3,
+        impersonate: str = "chrome146",
     ):
         self.auth_cookies = auth_cookies
         self.proxy_list = proxy_list
         self.timeout = timeout
+        self.impersonate = impersonate
 
     async def query_post_by_id(self, post_id: str):
         logger.debug("Using graphql implementation")
@@ -72,7 +74,7 @@ class MediumApi:
                     json=graphql_data,
                     proxies={"http": proxy, "https": proxy} if proxy else None,
                     timeout=self.timeout,
-                    impersonate="chrome136",
+                    impersonate=self.impersonate,
                     http_version="v3"
                 )
 

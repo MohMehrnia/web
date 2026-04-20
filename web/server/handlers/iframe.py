@@ -1,11 +1,8 @@
 import random
 
-import aiohttp
-from aiohttp_retry import RetryClient
-from aiohttp_socks import ProxyConnector
+from curl_cffi.requests import AsyncSession
 from fastapi import Response
 from loguru import logger
-from medium_parser import retry_options
 
 from server import config
 from server.utils.logger_trace import trace
@@ -26,29 +23,27 @@ async def iframe_proxy(iframe_id: str):
     """
     logger.debug(f"Fetching iframe content for ID: {iframe_id}")
 
-    connector = ProxyConnector.from_url(random.choice(config.PROXY_LIST)) if config.PROXY_LIST else None
+    proxy = random.choice(config.PROXY_LIST) if config.PROXY_LIST else None
 
-    async with aiohttp.ClientSession(connector=connector) as session:
-        async with RetryClient(
-            client_session=session, raise_for_status=False, retry_options=retry_options
-        ) as retry_client:
-            async with retry_client.get(
-                f"https://medium.com/media/{iframe_id}",
-                timeout=config.REQUEST_TIMEOUT,
-                headers={
-                    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36",
-                    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8",
-                    "Accept-Language": "en-US,en;q=0.5",
-                },
-            ) as request:
-                if request.status != 200:
-                    logger.error(
-                        f"Failed to fetch iframe {iframe_id}\n"
-                        f"Status code: {request.status}"
-                    )
-                    return Response(content="", media_type="text/html", headers=IFRAME_HEADERS)
+    async with AsyncSession(impersonate=config.CURL_IMPERSONATE) as session:
+        response = await session.get(
+            f"https://medium.com/media/{iframe_id}",
+            timeout=config.REQUEST_TIMEOUT,
+            proxies={"http": proxy, "https": proxy} if proxy else None,
+            headers={
+                "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8",
+                "Accept-Language": "en-US,en;q=0.5",
+            },
+        )
 
-                request_content = await request.text()
+        if response.status_code != 200:
+            logger.error(
+                f"Failed to fetch iframe {iframe_id}\n"
+                f"Status code: {response.status_code}"
+            )
+            return Response(content="", media_type="text/html", headers=IFRAME_HEADERS)
+
+        request_content = response.text
 
     patched_content = patch_iframe_content(request_content)
     return Response(content=patched_content, media_type="text/html", headers=IFRAME_HEADERS)

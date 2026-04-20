@@ -56,7 +56,7 @@ medium_cache.init_db()
 logger.debug(f"Database length: {medium_cache.all_length()}")
 
 medium_api = MediumApi(
-    auth_cookies=config.MEDIUM_AUTH_COOKIES, timeout=config.REQUEST_TIMEOUT, proxy_list=config.PROXY_LIST
+    auth_cookies=config.MEDIUM_AUTH_COOKIES, timeout=config.REQUEST_TIMEOUT, proxy_list=config.PROXY_LIST, impersonate=config.CURL_IMPERSONATE
 )
 medium_parser = MediumParser(
     cache=medium_cache,

@@ -38,6 +38,8 @@ SENTRY_PROFILES_SAMPLE_RATE: float = config("SENTRY_PROFILES_SAMPLE_RATE", cast=
 PROXY_LIST_RAW: str = config("PROXY_LIST", cast=str, default="")
 PROXY_LIST: list[str] = PROXY_LIST_RAW.split(",") if PROXY_LIST_RAW else []
 
+CURL_IMPERSONATE: str = config("CURL_IMPERSONATE", default="chrome146")
+
 LOGSTASH_HOST: str = config("LOGSTASH_HOST", default="logstash")
 LOGSTASH_PORT: int = config("LOGSTASH_PORT", cast=int, default=5000)
 LOGSTASH_PERSISTANCE_DATABASE: str = config("LOGSTASH_PERSISTANCE_DATABASE", default="/user_data/logstash.sqlite3")

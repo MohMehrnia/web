@@ -183,7 +183,7 @@ class SitemapProcessor:
         if curl_cffi is not None:
             try:
                 # curl_cffi provides a simple get API
-                r = curl_cffi.get(sitemap_url, impersonate='chrome136', headers=self.sitemap_headers, timeout=30)
+                r = curl_cffi.get(sitemap_url, impersonate='chrome146', headers=self.sitemap_headers, timeout=30)
                 # r is a curl_cffi Response-like object; access r.content
                 content = r.content
                 self._log("Fetched sitemap via curl_cffi")
